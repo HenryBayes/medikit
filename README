@@ -1,0 +1,6 @@
+SOFTWARE
+    This project is a medical kit which helps you manage the medicine in it, especially when the old or the child is in the home while you not. When someone trys to open it, they have to touch the sensor to make the motor unlock the kit, and then what medicine they have picked will be packed into a chinese message sending to your phone. When you receive the message, you could choose wheter to call back to guide them how to take the drugs.
+
+HARDWARE
+    The program is written in python, and the hardware platform is raspiberry pi.
+    The sensors and motor communicates with the raspibarry board through the GPIO, and the GSM module through serial com.
