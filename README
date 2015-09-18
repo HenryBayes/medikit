@@ -4,3 +4,4 @@ SOFTWARE
 HARDWARE
     The program is written in python, and the hardware platform is raspiberry pi.
     The sensors and motor communicates with the raspibarry board through the GPIO, and the GSM module through serial com.
+    660
