@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 """
 This module use m660 to send msg to the phone number which is given.
 It needs a medicine list to fill the content of the msg.
 """
-# -*- coding: utf-8 -*-
 import serial
 import time
 class msg:
@@ -10,7 +10,8 @@ class msg:
         self.send_seq = 1
         self.receive_num = phone_num
         self.command_dic = {'1':'AT','2':'AT+CCID','3':'AT+CSQ','4':'AT+CREG?','5':'AT+CMGF=0', '6':'AT+CSCS="UCS2"','7':'AT+CMGS='}
-        self.ser = serial.Serial('/dev/tty.usbserial', 115200,timeout=0.2)
+#        self.ser = serial.Serial('/dev/tty.usbserial', 115200,timeout=0.2)
+        self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=0.2)
         self.mdlist = medicine
         self.content = self.get_content(self.mdlist)
         self.send_string = '0001000BA1'+self.convert_phone_num(self.receive_num)+'0008'+self.dec2hex(len(self.content)/2)+self.content

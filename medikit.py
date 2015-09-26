@@ -120,10 +120,10 @@ This function describes the state that the box is closed
 """
 def when_closed():
     print "in when_close()"
-    global moved_md
+#    global moved_md
     motor_move(2.5)
     time.sleep(1)
-    print moved_md
+#    print moved_md
 
 """
 This function describes the standby state, and any touch on
@@ -157,7 +157,8 @@ def trytoclose():
         time.sleep(0.1)
         n = n - 1
     if n == 0:
-#        motor_move(2.5)
+        sendmsg()
+        print moved_md
         when_closed()
     else:
         when_opened()
