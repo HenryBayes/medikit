@@ -31,9 +31,9 @@ def IO_init():
 
 def touched():
     if GPIO.input(15) == GPIO.HIGH:
-        return False
-    else:
         return True
+    else:
+        return False
 """
 Angle ranges from 0 to 180 degree,
 corresponding with pwm ranging from 2.5 to 12.5
@@ -101,7 +101,7 @@ def trytoopen():
 
 def trytoclose():
     n = 40
-    while(GPIO.input(12) == and n > 0):
+    while(GPIO.input(12) == 0 and n > 0):
         time.sleep(0.1)
         n = n - 1
     if n == 0:
