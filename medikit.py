@@ -1,6 +1,7 @@
+#-*- coding=utf-8 -*-
 import serial
 import time
-from msg import msg
+#from msg import msg
 from medicine import medicine
 import RPi.GPIO as GPIO
 
@@ -16,7 +17,7 @@ GPIO LIST:
 #GPIO.setup(12, GPIO.IN)
 #p = GPIO.PWM(11, 50)
 
-def IO_init()
+def IO_init():
     global p
     global have_motor_inited
     global leds
@@ -31,16 +32,21 @@ def IO_init()
 
 def touched():
     if GPIO.input(15) == GPIO.HIGH:
-        return False
-    else:
+        print "touched!"
+        print "goto trytoopen()"
         return True
+    else:
+        return False
 """
 Angle ranges from 0 to 180 degree,
 corresponding with pwm ranging from 2.5 to 12.5
+pwm = 2.5 -------- close
+pwm = 12.5 ------- open
 """
 def motor_move(pwm):
     global have_motor_inited
     global p
+    print "pwm =", pwm
     if have_motor_inited == False:
         p.start(pwm)
         have_motor_inited = True
@@ -62,45 +68,108 @@ def checkled(seq):
         dic[n] = GPIO.input(n)
     return dic
 
-
-try:
-    led_seq = [13]
-    mdlist = [medicine(led_seq[0], u'阿莫西林')]
-    moved_md = []
-    while True:
-        if touched():
-            n = 50
-            motor_move(12.5)
-            while(GPIO.input(12) == 0 and n > 0):
-                time.sleep(0.1)
-                n = n - 1
-            if n == 0:
-                motor_move(2.5)
+def when_opened():
+    print "in when_open()"
+    global led_seq
+    global mdlist
+    global moved_md
+    while(GPIO.input(12) == 1):
+        dic = checkled(led_seq)
+        for led in dic:
+            if dic[led] == GPIO.HIGH:
+                for md in mdlist:
+                    if md.name in moved_md:
+                        pass    
+                    elif md.led_num == led:
+                        moved_md.append(md.name)
             else:
-                while(GPIO.input(12) == 1):
-                    dic = checkled(led_seq)
-                    for led in dic:
-                        if dic[led] == GPIO.HIGH:
-                            for md in mdlist:
-                                if md.led_num == led:
-                                    moved_md.append(md.name)
-                        else:
-                            pass
-                n = 40
-                while(GPIO.input(12) == 0 and n > 0):
-                    time.sleep(0.1)
-                    n = n - 1
-                if n == 0:
-                    motor_move(2.5)
+                pass
+    if GPIO.input(12) == 0:
+        trytoclose()
+    
+
+def when_closed():
+    print "in when_close()"
+    global moved_md
+    motor_move(2.5)
+    time.sleep(1)
+    print moved_md
+
+def trytoopen():
+    print "in trytoopen()"
+    if touched():
+        n = 50
+        motor_move(12.5)
+        while(GPIO.input(12) == 0 and n > 0):
+            time.sleep(0.1)
+            n = n - 1
+        if n == 0:
+            when_closed()
         else:
-            motor_move(2.5)
-            time.sleep(1)
+            when_opened()
+    else:
+        when_closed()
 
-except KeyboardInterrupt:
-    pass
+def trytoclose():
+    print "in trytoclose()"
+    n = 40
+    while(GPIO.input(12) == 0 and n > 0):
+        time.sleep(0.1)
+        n = n - 1
+    if n == 0:
+#        motor_move(2.5)
+        when_closed()
+    else:
+        when_opened()
 
-p.stop()
-GPIO.cleanup()
+
+if __name__ == "__main__":
+    try:
+        IO_init()
+        led_seq = [13]
+        mdlist = [medicine(led_seq[0], u'阿莫西林')]
+        moved_md = []
+        n = 1
+        while True:
+            print "loop", n
+            n = n + 1
+            trytoopen()
+#            if touched():
+#                n = 50
+#                motor_move(12.5)
+#                while(GPIO.input(12) == 0 and n > 0):
+#                    time.sleep(0.1)
+#                    n = n - 1
+#                if n == 0:
+#                    motor_move(2.5)
+#                else:
+#                    while(GPIO.input(12) == 1):
+#                        dic = checkled(led_seq)
+#                        for led in dic:
+#                            if dic[led] == GPIO.HIGH:
+#                                for md in mdlist:
+#                                    if md.led_num == led:
+#                                        moved_md.append(md.name)
+#                            else:
+#                                pass
+#                    when_opened()
+#                    n = 40
+#                    while(GPIO.input(12) == 0 and n > 0):
+#                        time.sleep(0.1)
+#                        n = n - 1
+#                    if n == 0:
+#                        motor_move(2.5)
+#                    else:
+#                        when_opened()
+#            else:
+#                motor_move(2.5)
+#                time.sleep(1)
+
+    except KeyboardInterrupt:
+        pass
+
+    p.stop()
+    GPIO.cleanup()
     
 
 #while True:
